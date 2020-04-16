@@ -1,0 +1,1 @@
+../../../upstream/src/xercesc/util/XMLIBM1047Transcoder.cpp

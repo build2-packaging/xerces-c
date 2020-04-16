@@ -1,0 +1,6 @@
+# file      : tests/sax-print/buildfile
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+import libs = libxerces-c%lib{xerces-c}
+
+exe{driver}: SAXPrint/{hxx cxx}{*} $libs testscript

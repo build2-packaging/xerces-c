@@ -1,0 +1,26 @@
+# file      : build/root.build
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+# We rely on C99 in macro deductions (see xercesc/config.h and
+# xercesc/util/Xerces_autoconf_config.hpp for details).
+#
+c.std = 99
+
+using c
+
+h{*}: extension = h
+c{*}: extension = c
+
+cxx.std = latest
+
+using cxx
+
+hxx{*}: extension = hpp
+txx{*}: extension = c
+cxx{*}: extension = cpp
+
+if ($c.target.system == 'win32-msvc')
+  cc.poptions += -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS
+
+if ($c.class == 'msvc')
+  cc.coptions += /wd4251 /wd4275 /wd4800

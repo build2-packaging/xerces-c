@@ -1,0 +1,139 @@
+This document describes an approach applied to packaging Xerces-C++ for
+build2. In particular, this understanding will be useful when upgrading to a
+new upstream version.
+
+The upstream package contains the libxerces-c C++ library, its usage examples,
+and tests. Currently, we only package the library (see libxerces-c/README-DEV
+for details).
+
+We add the upstream package as a git submodule and symlink the required files
+and subdirectories into the build2 package subdirectories. Then, when required,
+we "overlay" the upstream with our own header/source files, placing them into
+the library directory.
+
+Note that symlinking upstream submodule subdirectories into a build2 package
+subdirectory results in creating intermediate build files (.d, .o, etc) inside
+upstream directory while building the package in source tree. That's why we
+need to make sure that packages do not share upstream source files via
+subdirectory symlinks, not to also share the related intermediate files. If
+several packages need to compile the same upstream source file, then only one
+of them can symlink it via the parent directory while others must symlink it
+directly. We also add the `ignore = untracked` configuration option into
+.gitmodules to make sure that git ignores the intermediate build files under
+upstream/ subdirectory.
+
+The upstream package can be configured to contain a specific feature set. We
+reproduce the union of features configured for the upstream source package in
+Debian and Fedora distributions. The configuration options defining these sets
+are specified in the Debian's rules and Fedora's RPM .spec files. These files
+can be obtained as follows:
+
+$ wget http://deb.debian.org/debian/pool/main/x/xerces-c/xerces-c_3.2.3+debian-1.debian.tar.xz
+$ tar xf xerces-c_3.2.3+debian-1.debian.tar.xz debian/rules
+
+$ wget https://kojipkgs.fedoraproject.org//packages/xerces-c/3.2.3/1.fc33/src/xerces-c-3.2.3-1.fc33.src.rpm
+$ rpm2cpio xerces-c-3.2.3-1.fc33.src.rpm | cpio -civ '*.spec'
+
+As a side note, on Debian and Fedora the source, library, and headers are
+packaged as follows:
+
+                src       libxerces-c     headers
+Debian/Ubuntu:  xerces-c  libxerces-c3.2  libxerces-c-dev
+Fedora/RHEL:    xerces-c  xerces-c        xerces-c-devel
+
+Search for the Debian and Fedora packages at https://packages.debian.org/search
+and https://apps.fedoraproject.org/packages/.
+
+Here are the discovered configuration options.
+
+Debian:
+
+   --enable-netaccessor-curl --disable-sse2
+
+Fedora:
+
+  --disable-sse2 # Only affects i686.
+
+Note that some of the features are selected by the configure scripts
+automatically. To deduce them we check the Debian and Fedora build logs.
+
+Debian (https://buildd.debian.org/status/fetch.php?pkg=xerces-c&arch=amd64&ver=3.2.3%2Bdebian-1&stamp=1586641244&raw=0):
+
+  configure: Report:
+  configure:   File Manager: POSIX
+  configure:   Mutex Manager: standard
+  configure:   Transcoder: icu
+  configure:   NetAccessor: curl
+  configure:   Message Loader: inmemory
+  configure:   XMLCh Type: char16_t
+
+Fedora (https://kojipkgs.fedoraproject.org/packages/xerces-c/3.2.3/1.fc33/data/logs/aarch64/build.log):
+
+  configure: Report:
+  configure:   File Manager: POSIX
+  configure:   Mutex Manager: standard
+  configure:   Transcoder: gnuiconv
+  configure:   NetAccessor: socket
+  configure:   Message Loader: inmemory
+  configure:   XMLCh Type: char16_t
+
+Based on that and taking into account the dependencies we have packaged for
+build2, we end up with the following configuration options:
+
+  --enable-netaccessor-curl --enable-transcoder-icu \
+  --enable-msgloader-inmemory --enable-xmlch-char16_t \
+  --enable-mutexmgr-standard  --disable-sse2
+
+See the configuration options description at the "Build Instructions" page
+(http://xerces.apache.org/xerces-c/build-3.html).
+
+Normally, when packaging a project, we need to replace some auto-generated
+headers with our own implementations, deduce the compilation/linking options
+and the source files to compile. For Xerces-C++ we can rely on the
+configure.ac, config.h.cmake.in, src/{CMakeLists.txt,Makefile.am},
+src/xercesc/util/{XercesVersion,Xerces_autoconf_config}.hpp.in. In practice,
+however, that can be uneasy and error prone, so you may also need to refer to
+auto-generated header files or to see the actual compiler and linker command
+lines in the build log. If that's the case, you can configure/build the
+upstream package on the platform of interest running the following commands in
+the upstream project root directory.
+
+On POSIX:
+
+$ ./reconf
+$ mkdir build
+$ cd build
+$ ../configure --enable-netaccessor-curl --enable-transcoder-icu \
+  --enable-msgloader-inmemory --enable-xmlch-char16_t \
+  --enable-mutexmgr-standard --disable-sse2 >build.log
+$ make V=1 >>build.log 2>&1
+
+Note that on Windows, to reduce complexity, we may build the upstream package
+with the native network accessor and transcoder (rather than with the cURL-
+based network accessor and ICU-based transcoder) as it doesn't really affect
+the compilation and linking options.
+
+For MSVC:
+
+> mkdir build
+> cd build
+> cmake -G "Visual Studio 15 2017 Win64" ^
+  -Dnetwork-accessor=winsock -Dtranscoder=windows ^
+  -Dmessage-loader=inmemory -Dxmlch-type=char16_t -Dmutex-manager=standard ^
+  -Dmfc-debug:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON .. >build.log
+> cmake --build . >>build.log 2>&1
+
+For MinGW GCC:
+
+$ mkdir build
+$ cd build
+$ cmake -G "MSYS Makefiles" -Dnetwork-accessor=winsock -Dtranscoder=windows \
+    -Dmessage-loader=inmemory -Dxmlch-type=char16_t -Dmutex-manager=standard \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON .. >build.log
+$ make V=1 >>build.log 2>&1
+
+When the packaging is complete, build all the project packages in source tree
+and make sure that no Xerces-C++ headers are included from the system, running
+the following command from the project root:
+
+fgrep -a -e /usr/include/xercesc `find . -type f -name '*.d'`

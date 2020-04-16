@@ -1,0 +1,21 @@
+# file      : tests/psvi-writer/testscript
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+: utf8
+:
+{
+  cat <<EOI >=f;
+    <?xml version="1.0" encoding="UTF-8"?>
+    <msg>
+      Mitteleuropäische catégorie
+    </msg>
+    EOI
+
+  $* f >>~%EOO%
+    %.+
+    %\s*<textContent>%
+    %\s*Mitteleuropäische catégorie%
+    %\s*</textContent>%
+    %.+
+    EOO
+}

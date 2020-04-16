@@ -1,0 +1,11 @@
+# file      : tests/psvi-writer/buildfile
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+import libs = libxerces-c%lib{xerces-c}
+
+exe{driver}: PSVIWriter/{hxx cxx}{*} $libs testscript
+
+# Disable MSVC warnings that pop up with /W3.
+#
+if ($cxx.class == 'msvc')
+  cxx.coptions += /wd4267

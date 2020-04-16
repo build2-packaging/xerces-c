@@ -1,0 +1,34 @@
+# file      : tests/net-accessor/testscript
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+: http
+:
+$* 'http://www.example.com' >>~%EOO%
+  %.+
+  EOO
+
+# If we want to test how HTTPS URLs are handled, we need to make it work
+# always (see how the curl utility is packaged for details).
+#
+#\
+: https
+:
+: Test that an HTTPS URL is queried successfully using libcurl via the system
+: SSL backend on Windows and MacOS/Clang and fails for other targets that use
+: the OpenSSL backend by default.
+:
+if ($cxx.target.class == 'windows' || \
+    $cxx.target.class == 'macos' && $cxx.id == 'clang-apple')
+{
+  $* 'https://www.example.com' >>~%EOO%
+    %.+
+    EOO
+}
+else
+{
+  $* 'https://www.example.com' 2>>~%EOE% != 0
+    Exception during test:
+    %.+
+    EOE
+}
+#\

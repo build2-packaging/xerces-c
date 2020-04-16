@@ -1,0 +1,148 @@
+# file      : xercesc/buildfile
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+# Note that the installed util/NetAccessors/Curl/CurlURLInputStream.hpp
+# includes the libcurl headers.
+#
+import int_libs = libcurl%lib{curl}
+
+import imp_libs  = libicuuc%lib{icuuc}
+import imp_libs += libicui18n%lib{icui18n}
+
+lib{xerces-c}: {h          }{config                                        } \
+               {hxx txx cxx}{*/** -util/FileManagers/** -util/XercesVersion} \
+               {hxx        }{                            util/XercesVersion} \
+               $int_libs $imp_libs
+
+tclass = $cxx.target.class
+tsys   = $cxx.target.system
+
+windows      = ($tclass == 'windows')
+
+lib{xerces-c}:    {h     c}{stricmp strnicmp}                        \
+util/FileManagers/{hxx cxx}{PosixFileMgr    }: include = (!$windows)
+
+lib{xerces-c}: util/FileManagers/{hxx cxx}{WindowsFileMgr}: include = $windows
+
+# Include the generated version header into the distribution (so that we
+# don't pick up an installed one) and don't remove it when cleaning in src (so
+# that clean results in a state identical to distributed).
+#
+util/hxx{XercesVersion}: util/in{XercesVersion} $src_root/manifest
+{
+  dist  = true
+  clean = ($src_root != $out_root)
+
+  in.symbol = '@'
+
+  XERCES_VERSION_MAJOR    = "$version.major"
+  XERCES_VERSION_MINOR    = "$version.minor"
+  XERCES_VERSION_REVISION = "$version.patch"
+
+  XERCES_GRAMMAR_SERIALIZATION_LEVEL = "$grammar_serialization_level"
+}
+
+# Build options.
+#
+cc.poptions += -DXERCES_BUILDING_LIBRARY -DHAVE_CONFIG_H -D_THREAD_SAFE
+
+if $windows
+  cc.poptions += -DWIN32 -D_WINDOWS -D_MBCS
+
+# Note that we need to add "-I$src_root" for the headers auto-generating
+# machinery to work properly.
+#
+cc.poptions =+ "-I$out_root" "-I$src_root" "-I$src_base"
+
+obja{*}: cxx.poptions += -DLIBXERCES_C_STATIC_BUILD
+objs{*}: cxx.poptions += -DLIBXERCES_C_SHARED_BUILD
+
+switch $c.class
+{
+  case 'gcc'
+  {
+    # Disable warnings that pop up with -Wall -Wextra. Upstream doesn't seem
+    # to care about these and it is not easy to disable specific warnings in a
+    # way that works across compilers/version (some -Wno-* options are only
+    # recognized in newer versions). There are still some warnings left that
+    # appear for certain platforms/compilers. We pass them through but disable
+    # treating them as errors.
+    #
+    cc.coptions += -Wno-all -Wno-extra -Wno-error
+
+    # Disable the Clang targeting MSVC warnings.
+    #
+    if ($c.id == 'clang' && $tsys == 'win32-msvc')
+      cc.coptions += -Wno-deprecated-declarations
+  }
+  case 'msvc'
+  {
+    # Disable warnings that pop up with /W3.
+    #
+    cc.coptions += /wd4244 /wd4267 /wd4996 /wd4305
+  }
+}
+
+switch $tclass, $tsys
+{
+  case 'windows', 'mingw32'
+  {
+    # Make sure all symbols are resolvable.
+    #
+    cxx.loptions += -Wl,--no-undefined
+
+    cxx.libs += -lws2_32
+  }
+  case 'windows'
+  {
+    # Suppress the 'object file does not define any public symbols' warning.
+    #
+    cxx.aoptions += /IGNORE:4221
+
+    cxx.libs += ws2_32.lib
+  }
+  case 'linux'
+  {
+    # Make sure all symbols are resolvable.
+    #
+    cxx.loptions += -Wl,--no-undefined
+
+    cxx.libs += -lm -lpthread
+  }
+  default
+  {
+    cxx.libs += -lpthread
+  }
+}
+
+# Export options.
+#
+lib{xerces-c}:
+{
+  cxx.export.poptions = "-I$out_root" "-I$src_root"
+  cxx.export.libs     = $int_libs
+}
+
+liba{xerces-c}: cxx.export.poptions += -DLIBXERCES_C_STATIC
+libs{xerces-c}: cxx.export.poptions += -DLIBXERCES_C_SHARED
+
+# See bootstrap.build for details.
+#
+if $version.pre_release
+  lib{xerces-c}: bin.lib.version = @"-$version.project_id"
+else
+  lib{xerces-c}: bin.lib.version = @"-$abi_version"
+
+# Don't install the implementation details C headers (config.h and the
+# compatibility function declarations).
+#
+h{*}: install = false
+
+# Install the C++ headers into the xercesc/ subdirectory of, say, /usr/include/
+# recreating subdirectories.
+#
+{hxx txx}{*}:
+{
+  install         = include/xercesc/
+  install.subdirs = true
+}

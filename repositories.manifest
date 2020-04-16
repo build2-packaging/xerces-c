@@ -1,0 +1,10 @@
+: 1
+summary: Xerces-C++ build2 package repository
+
+:
+role: prerequisite
+location: ../../curl/curl.git##HEAD
+
+:
+role: prerequisite
+location: ../../icu/icu.git##HEAD

@@ -1,0 +1,9 @@
+# file      : build/export.build
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+$out_root/
+{
+  include xercesc/
+}
+
+export $out_root/xercesc/lib{xerces-c}

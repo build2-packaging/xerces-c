@@ -1,0 +1,21 @@
+Xerces-C++ is a validating XML parser written in a portable subset of C++
+with the libxerces-c library providing support for validating, parsing,
+manipulating, and generating XML documents using the DOM, SAX, and SAX2
+APIs. For more information see:
+
+http://xerces.apache.org/xerces-c/
+
+This package contains the original libxerces-c library source code overlaid
+with the build2-based build system and packaged for the build2 package manager
+(bpkg).
+
+See the INSTALL file for the prerequisites and installation instructions.
+
+Send questions, bug reports, or any other feedback about the library itself to
+the Xerces-C++ mailing lists. Send build system and packaging-related feedback
+to the packaging@build2.org mailing list (see https://lists.build2.org for
+posting guidelines, etc).
+
+The packaging of Xerces-C++ for build2 is tracked in a Git repository at:
+
+https://git.build2.org/cgit/packaging/xerces-c/

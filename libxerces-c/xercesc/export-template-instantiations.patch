@@ -1,0 +1,29 @@
+diff --git a/libxerces-c/xercesc/util/Janitor.hpp b/libxerces-c/xercesc/util/Janitor.hpp
+index cf06e67..da970bf 100644
+--- a/libxerces-c/xercesc/util/Janitor.hpp
++++ b/libxerces-c/xercesc/util/Janitor.hpp
+@@ -155,8 +155,8 @@ private :
+ };
+ 
+ #if defined(__GNUC__) || (! defined(_AIX) && ! defined(__hpux) && ! defined(__sun))
+-XERCES_TEMPLATE_EXTERN template class XMLUTIL_EXPORT ArrayJanitor<XMLByte>;
+-XERCES_TEMPLATE_EXTERN template class XMLUTIL_EXPORT ArrayJanitor<XMLCh>;
++extern template class XERCES_PLATFORM_DECEXPORT ArrayJanitor<XMLByte>;
++extern template class XERCES_PLATFORM_DECEXPORT ArrayJanitor<XMLCh>;
+ #endif
+ 
+ XERCES_CPP_NAMESPACE_END
+diff --git a/libxerces-c/xercesc/util/JanitorExports.cpp b/libxerces-c/xercesc/util/JanitorExports.cpp
+index ec35bea..024434f 100644
+--- a/libxerces-c/xercesc/util/JanitorExports.cpp
++++ b/libxerces-c/xercesc/util/JanitorExports.cpp
+@@ -19,7 +19,7 @@
+ 
+ XERCES_CPP_NAMESPACE_BEGIN
+ 
+-template class ArrayJanitor<XMLByte>;
+-template class ArrayJanitor<XMLCh>;
++template class XERCES_PLATFORM_DEFEXPORT ArrayJanitor<XMLByte>;
++template class XERCES_PLATFORM_DEFEXPORT ArrayJanitor<XMLCh>;
+ 
+ XERCES_CPP_NAMESPACE_END

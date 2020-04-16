@@ -1,0 +1,20 @@
+# file      : tests/sax-print/testscript
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+: utf8
+:
+{
+  cat <<EOI >=f;
+    <?xml version="1.0" encoding="UTF-8"?>
+    <msg>
+      Mitteleuropäische catégorie
+    </msg>
+    EOI
+
+  $* -x=UTF-8 f >>:EOO
+    <?xml version="1.0" encoding="UTF-8"?>
+    <msg>
+      Mitteleuropäische catégorie
+    </msg>
+    EOO
+}

@@ -1,0 +1,25 @@
+: 1
+name: libxerces-c
+
+# Note: remember to update doc-url below!
+#
+version: 3.2.3-a.0.z
+
+project: xerces-c
+summary: Validating XML parsing and serialization C++ library
+license: ASLv2 ; Apache License v2.0.
+topics: Xerces, C++, XML parser, DOM, SAX
+description-file: README
+url: http://xerces.apache.org/xerces-c/
+doc-url: http://xerces.apache.org/xerces-c/api-3.html
+src-url: https://git.build2.org/cgit/packaging/xerces-c/xerces-c/tree/libxerces-c/
+package-url: https://git.build2.org/cgit/packaging/xerces-c/
+email: c-users@xerces.apache.org    ; Mailing list.
+package-email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: default
+depends: * build2 >= 0.12.0
+depends: * bpkg >= 0.12.0
+depends: libcurl >= 7.67.0
+depends: libicuuc >= 65.1.0
+depends: libicui18n >= 65.1.0

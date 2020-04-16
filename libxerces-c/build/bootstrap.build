@@ -1,0 +1,35 @@
+# file      : build/bootstrap.build
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+project = libxerces-c
+
+using version
+using config
+using dist
+using test
+using install
+
+# The Xerces-C++ version has the <version>.<release>.<modification> form and
+# follows the semver semantics. Specifically, the new versions and releases
+# are issued when a certain number of bug fixes and new features are added
+# and the modifications are issued when critical bugs are encountered. The
+# releases and modifications may only contain the backward-compatible API
+# changes. The ABI backward compatibility is only preserved for modifications.
+#
+# There is also the serialization format version number that can not be
+# deduced from the package version. It is not documented which kind of package
+# releases may increment this number, but based on its change history we can
+# probably assume that this may not happen for modifications. Thus, we will
+# check for its change (the XERCES_GRAMMAR_SERIALIZATION_LEVEL variable in
+# configure.ac) only when the version or release number is incremented.
+#
+# See also: https://xerces.apache.org/xerces-c/faq-contributing-3.html
+#
+if ($version.major == 3 && $version.minor == 2)
+{
+  grammar_serialization_level = 7 # Serialization format version.
+
+  abi_version = "$version.major.$version.minor"
+}
+else
+  fail "increment the serialization format version?"

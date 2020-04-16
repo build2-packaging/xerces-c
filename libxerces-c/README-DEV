@@ -1,0 +1,96 @@
+This document describes how libxerces-c was packaged for build2. In
+particular, this understanding will be useful when upgrading to a new upstream
+version. See ../README-DEV for general notes on Xerces-C++ packaging.
+
+Symlink the required upstream files and provide our own implementations for
+auto-generated headers:
+
+$ ln -s ../upstream/LICENSE
+$ ln -s ../../upstream/src/xercesc/{dom,framework,internal,parsers,sax,sax2,\
+validators,xinclude} xercesc/
+
+$ ln -s ../../upstream/src/{stricmp,strnicmp}.{h,c} xercesc/
+
+$ pushd xercesc/util/
+$ ln -s ../../../upstream/src/xercesc/util/*.{cpp,hpp,c} ./
+$ ln -s ../../../upstream/src/xercesc/util/{regx,FileManagers} ./
+
+Note that the main reason for such a granular linking (we could just link
+upstream's Transcoders/, etc) is reducing the number of preprocessor macros we
+need to deduce in xercesc/config.h (see the change tracking instructions
+below for details). As a bonus it also simplifies the buildfile.
+
+$ mkdir -p Transcoders NetAccessors MsgLoaders MutexManagers
+$ ln -s ../../../../upstream/src/xercesc/util/Transcoders/ICU Transcoders/
+$ ln -s ../../../../upstream/src/xercesc/util/NetAccessors/Curl NetAccessors/
+$ ln -s ../../../../upstream/src/xercesc/util/MsgLoaders/InMemory MsgLoaders/
+$ ln -s ../../../../upstream/src/xercesc/util/MutexManagers/StdMutexMgr.{hpp,cpp} MutexManagers/
+
+$ ln -s ../../../upstream/src/xercesc/util/XercesVersion.hpp.cmake.in \
+  XercesVersion.hpp.in
+$ popd
+
+We also patch the explicit template instantiation declarations and definitions
+(see xercesc/util/Xerces_autoconf_config.hpp for details):
+
+$ cp --remove-destination ../upstream/src/xercesc/util/{Janitor.hpp,JanitorExports.cpp} \
+  xercesc/util/
+
+$ git apply xercesc/export-template-instantiations.patch
+
+Note that the patch is produced by the following command:
+
+$ git diff >xercesc/export-template-instantiations.patch
+
+Use some of the upstream's tests and examples for testing:
+
+$ ln -s ../../../upstream/samples/src/DOMPrint tests/dom-print/
+$ ln -s ../../../upstream/samples/src/SAXPrint tests/sax-print/
+$ ln -s ../../../upstream/samples/src/SAX2Print tests/sax2-print/
+$ ln -s ../../../upstream/samples/src/PSVIWriter tests/psvi-writer/
+
+We also patch the net accessor test, which by some reason exits with the zero
+status printing the diagnostics to stdout for some errors:
+
+$ cp ../upstream/tests/src/NetAccessorTest/NetAccessorTest.cpp \
+  tests/net-accessor/
+
+$ git apply tests/net-accessor/handle-exception-as-error.patch
+
+Note that the patch is produced by the following command:
+
+$ git diff >tests/net-accessor/handle-exception-as-error.patch
+
+Create xercesc/{config.h,util/Xerces_autoconf_config.hpp} using as a base the
+upstream's config.h.cmake.in, config.h.in, and
+Xerces_autoconf_config.hpp.cmake.in.
+
+Re-creating xercesc/config.h from scratch every time we upgrade to a new
+upstream version would be a real pain. Instead we can only (un)define the
+newly introduced macros, comparing the already defined and currently used
+macro sets. Note that we can use this approach to also deduce the initial set
+of macros running the above commands for the upstream's auto-generated
+config.h:
+
+$ ln -s ../../upstream/config.h.cmake.in xercesc/config.h.cmake.in.orig
+$ ln -s ../../../upstream/src/xercesc/util/Xerces_autoconf_config.hpp.cmake.in \
+  xercesc/util/Xerces_autoconf_config.hpp.cmake.in.orig
+
+$ for m in `cat xercesc/config.h.cmake.in.orig | \
+            sed -n 's/.*#\s*\(define\|cmakedefine\)\s\{1,\}\([_a-zA-Z0-9]\{1,\}\)\(\s.*\)\{0,1\}$/\2/p' | sort -u`; do
+    if grep -q -e "\b$m\b" `find -L . -name '*.h' -a ! -name config.h -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' -a ! -name XercesVersion.hpp  -a ! -name Xerces_autoconf_config.hpp`; then
+      echo "$m"
+    fi
+  done >used-macros
+
+$ cat xercesc/config.h | \
+  sed -n 's/^#\s*\(define\|undef\)\s\{1,\}\([_a-z_A-Z0-9]\{1,\}\)\(\s.*\)\{0,1\}$/\2/p' | \
+  sort -u >defined-macros
+
+$ diff defined-macros used-macros | grep '<' >remove-macros
+$ diff defined-macros used-macros | grep '>' >add-macros
+
+We won't drop macro (un)definitions in Xerces_autoconf_config.hpp (see the
+header for details). Thus, just compare the new and old
+Xerces_autoconf_config.hpp.cmake.in files during upgrade to detect the removed
+and added macro definitions. Luckily, the header is not that big.
