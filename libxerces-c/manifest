@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.2.3-a.0.z
+version: 3.2.3
 
 project: xerces-c
 summary: Validating XML parsing and serialization C++ library
