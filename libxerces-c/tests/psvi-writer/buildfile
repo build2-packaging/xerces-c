@@ -5,7 +5,21 @@ import libs = libxerces-c%lib{xerces-c}
 
 exe{driver}: PSVIWriter/{hxx cxx}{*} $libs testscript
 
-# Disable MSVC warnings that pop up with /W3.
-#
-if ($cxx.class == 'msvc')
-  cxx.coptions += /wd4267
+switch $cxx.class
+{
+  case 'gcc'
+  {
+    # Disable warnings that pop up with -Wall -Wextra. Upstream doesn't seem
+    # to care about these and it is not easy to disable specific warnings in a
+    # way that works across compilers/version (some -Wno-* options are only
+    # recognized in newer versions).
+    #
+    cxx.coptions += -Wno-all -Wno-extra
+  }
+  case 'msvc'
+  {
+    # Disable warnings that pop up with /W3.
+    #
+    cxx.coptions += /wd4267
+  }
+}
