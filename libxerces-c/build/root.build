@@ -1,6 +1,13 @@
 # file      : build/root.build
 # license   : Apache License 2.0; see accompanying LICENSE file
 
+# Enable network support so that the parser can download remote resources
+# (schemas, DTDs, etc).
+#
+# If enabled, then the libcurl library is used to access network resources.
+#
+config [bool] config.libxerces_c.network ?= false
+
 # We rely on C99 in macro deductions (see xercesc/config.h and
 # xercesc/util/Xerces_autoconf_config.hpp for details).
 #

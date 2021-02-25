@@ -87,6 +87,11 @@ build2, we end up with the following configuration options:
 See the configuration options description at the "Build Instructions" page
 (http://xerces.apache.org/xerces-c/build-3.html).
 
+We, however, disable the network support by default, replacing the
+--enable-netaccessor-curl option with --disable-network. The user, will still
+be able to enable network by setting the config.libxerces_c.network project
+configuration variable to true.
+
 Normally, when packaging a project, we need to replace some auto-generated
 headers with our own implementations, deduce the compilation/linking options
 and the source files to compile. For Xerces-C++ we can rely on the
@@ -110,8 +115,7 @@ $ make V=1 >>build.log 2>&1
 
 Note that on Windows, to reduce complexity, we may build the upstream package
 with the native network accessor and transcoder (rather than with the cURL-
-based network accessor and ICU-based transcoder) as it doesn't really affect
-the compilation and linking options.
+based network accessor and ICU-based transcoder).
 
 For MSVC:
 

@@ -1,7 +1,5 @@
 On the revision:
 
-- Remove the redundant spaces from "windows      = ($tclass == 'windows')".
-
 On the release:
 
 - Use legal{} target type for legal documentation (LICENSE, AUTHORS, etc).

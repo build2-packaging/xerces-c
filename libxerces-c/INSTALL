@@ -5,3 +5,10 @@ $ bpkg build libxerces-c
 
 But if you don't want to use the package manager, then you can also build this
 package manually using the standard build2 build system.
+
+Note that by default libxerces-c is built without network support. To enable
+it, run the following command instead:
+
+@@ Revise when the package conditional dependencies are supported.
+
+$ bpkg build libxerces-c +{ config.libxerces_c.network=true } libcurl

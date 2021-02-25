@@ -11,14 +11,20 @@ validators,xinclude} xercesc/
 
 $ ln -s ../../upstream/src/{stricmp,strnicmp}.{h,c} xercesc/
 
-$ pushd xercesc/util/
+$ mkdir xercesc/internal/ xercesc/util/
+
+$ pushd xercesc/internal/
+$ ln -s ../../../upstream/src/xercesc/internal/*.{cpp,hpp} ./
+
+$ cd ../util/
 $ ln -s ../../../upstream/src/xercesc/util/*.{cpp,hpp,c} ./
 $ ln -s ../../../upstream/src/xercesc/util/{regx,FileManagers} ./
 
-Note that the main reason for such a granular linking (we could just link
-upstream's Transcoders/, etc) is reducing the number of preprocessor macros we
-need to deduce in xercesc/config.h (see the change tracking instructions
-below for details). As a bonus it also simplifies the buildfile.
+Note that the main reasons for such a granular linking (we could just link
+upstream's internal/, util/, etc) are source code patching and reducing the
+number of preprocessor macros we need to deduce in xercesc/config.h (see the
+change tracking instructions below for details). As a bonus it also simplifies
+the buildfile.
 
 $ mkdir -p Transcoders NetAccessors MsgLoaders MutexManagers
 $ ln -s ../../../../upstream/src/xercesc/util/Transcoders/ICU Transcoders/
@@ -30,18 +36,6 @@ $ ln -s ../../../upstream/src/xercesc/util/XercesVersion.hpp.cmake.in \
   XercesVersion.hpp.in
 $ popd
 
-We also patch the explicit template instantiation declarations and definitions
-(see xercesc/util/Xerces_autoconf_config.hpp for details):
-
-$ cp --remove-destination ../upstream/src/xercesc/util/{Janitor.hpp,JanitorExports.cpp} \
-  xercesc/util/
-
-$ git apply xercesc/export-template-instantiations.patch
-
-Note that the patch is produced by the following command:
-
-$ git diff >xercesc/export-template-instantiations.patch
-
 Use some of the upstream's tests and examples for testing:
 
 $ ln -s ../../../upstream/samples/src/DOMPrint tests/dom-print/
@@ -49,17 +43,49 @@ $ ln -s ../../../upstream/samples/src/SAXPrint tests/sax-print/
 $ ln -s ../../../upstream/samples/src/SAX2Print tests/sax2-print/
 $ ln -s ../../../upstream/samples/src/PSVIWriter tests/psvi-writer/
 
-We also patch the net accessor test, which by some reason exits with the zero
-status printing the diagnostics to stdout for some errors:
+We also apply the following patches:
 
-$ cp ../upstream/tests/src/NetAccessorTest/NetAccessorTest.cpp \
-  tests/net-accessor/
+- Fix of the use-after-free error (CVE-2018-1311) triggered during the
+  scanning of external DTDs (see https://security-tracker.debian.org/tracker/CVE-2018-1311
+  for details).
 
-$ git apply tests/net-accessor/handle-exception-as-error.patch
+  There is no upstream fix and only suggested mitigations, at time of this
+  writing (see https://issues.apache.org/jira/browse/XERCESC-2188 for
+  details). Thus, we mitigate the issue at the expense of a memory leak, as it
+  is done by Debian (https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=947431).
 
-Note that the patch is produced by the following command:
+  $ cp --remove-destination ../upstream/src/xercesc/internal/IGXMLScanner.cpp \
+    xercesc/internal/
 
-$ git diff >tests/net-accessor/handle-exception-as-error.patch
+  $ git apply xercesc/dtd-decl-use-after-free.patch
+
+- The explicit template instantiation declarations and definitions patch (see
+  xercesc/util/Xerces_autoconf_config.hpp for details):
+
+  $ cp --remove-destination ../upstream/src/xercesc/util/{Janitor.hpp,JanitorExports.cpp} \
+    xercesc/util/
+
+  $ git apply xercesc/export-template-instantiations.patch
+
+- The inline functions definition/usage order change to prevent MinGW GCC
+  from complaining when compile code that uses libxerces-c:
+
+  $ cp --remove-destination ../upstream/src/xercesc/util/KVStringPair.hpp \
+    xercesc/util/
+
+  $ git apply xercesc/inline-funcs-def-usage-order.patch
+
+- Patch of the net accessor test, which by some reason exits with the zero
+  status printing the diagnostics to stdout for some errors:
+
+  $ cp ../upstream/tests/src/NetAccessorTest/NetAccessorTest.cpp \
+    tests/net-accessor/
+
+  $ git apply tests/net-accessor/handle-exception-as-error.patch
+
+Note that the above patches are produced by the following commands:
+
+$ git diff ><patch-path>
 
 Create xercesc/{config.h,util/Xerces_autoconf_config.hpp} using as a base the
 upstream's config.h.cmake.in, config.h.in, and

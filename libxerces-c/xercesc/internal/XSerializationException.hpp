@@ -1,0 +1,1 @@
+../../../upstream/src/xercesc/internal/XSerializationException.hpp

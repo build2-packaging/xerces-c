@@ -15,7 +15,8 @@ $* 'http://www.example.com' >>~%EOO%
 :
 : Test that an HTTPS URL is queried successfully using libcurl via the system
 : SSL backend on Windows and MacOS/Clang and fails for other targets that use
-: the OpenSSL backend by default.
+: the OpenSSL backend by default, since the CA certificates can not be
+: located.
 :
 if ($cxx.target.class == 'windows' || \
     $cxx.target.class == 'macos' && $cxx.id == 'clang-apple')

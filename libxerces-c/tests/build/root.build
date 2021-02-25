@@ -1,6 +1,10 @@
 # file      : tests/build/root.build
 # license   : Apache License 2.0; see accompanying LICENSE file
 
+# Test network support (see parent project for details).
+#
+config [bool] config.libxerces_c.network ?= false
+
 cxx.std = latest
 
 using cxx

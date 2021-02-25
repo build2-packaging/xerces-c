@@ -1,4 +1,6 @@
 # file      : tests/buildfile
 # license   : Apache License 2.0; see accompanying LICENSE file
 
-./: {*/ -build/}
+./: {*/ -build/ -net-accessor/}
+
+./: net-accessor/: include = $config.libxerces_c.network

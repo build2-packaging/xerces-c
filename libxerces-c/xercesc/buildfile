@@ -1,28 +1,35 @@
 # file      : xercesc/buildfile
 # license   : Apache License 2.0; see accompanying LICENSE file
 
+network = $config.libxerces_c.network
+
 # Note that the installed util/NetAccessors/Curl/CurlURLInputStream.hpp
 # includes the libcurl headers.
 #
-import int_libs = libcurl%lib{curl}
+if $network
+  import intf_libs = libcurl%lib{curl}
 
-import imp_libs  = libicuuc%lib{icuuc}
-import imp_libs += libicui18n%lib{icui18n}
+import impl_libs  = libicuuc%lib{icuuc}
+import impl_libs += libicui18n%lib{icui18n}
 
-lib{xerces-c}: {h          }{config                                        } \
-               {hxx txx cxx}{*/** -util/FileManagers/** -util/XercesVersion} \
-               {hxx        }{                            util/XercesVersion} \
-               $int_libs $imp_libs
+lib{xerces-c}: {h          }{config}                    \
+               {hxx txx cxx}{*/** -util/FileManagers/** \
+                                  -util/NetAccessors/** \
+                                  -util/XercesVersion}  \
+               {hxx        }{      util/XercesVersion}  \
+               $intf_libs $impl_libs
 
 tclass = $cxx.target.class
 tsys   = $cxx.target.system
 
-windows      = ($tclass == 'windows')
+windows = ($tclass == 'windows')
 
 lib{xerces-c}:    {h     c}{stricmp strnicmp}                        \
 util/FileManagers/{hxx cxx}{PosixFileMgr    }: include = (!$windows)
 
 lib{xerces-c}: util/FileManagers/{hxx cxx}{WindowsFileMgr}: include = $windows
+
+lib{xerces-c}: util/NetAccessors/Curl/{hxx cxx}{*}: include = $network
 
 # Include the generated version header into the distribution (so that we
 # don't pick up an installed one) and don't remove it when cleaning in src (so
@@ -44,6 +51,9 @@ util/hxx{XercesVersion}: util/in{XercesVersion} $src_root/manifest
 
 # Build options.
 #
+if $network
+  cc.poptions += -DXERCES_USE_NETACCESSOR_CURL=1
+
 cc.poptions += -DXERCES_BUILDING_LIBRARY -DHAVE_CONFIG_H -D_THREAD_SAFE
 
 if $windows
@@ -120,7 +130,7 @@ switch $tclass, $tsys
 lib{xerces-c}:
 {
   cxx.export.poptions = "-I$out_root" "-I$src_root"
-  cxx.export.libs     = $int_libs
+  cxx.export.libs     = $intf_libs
 }
 
 liba{xerces-c}: cxx.export.poptions += -DLIBXERCES_C_STATIC

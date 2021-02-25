@@ -32,8 +32,14 @@
 #undef  XERCES_USE_TRANSCODER_WINDOWS
 
 /* Use the Curl net accessor.
+ *
+ * Note that the XERCES_USE_NETACCESSOR_CURL macro is defined via the
+ * preprocessor option if the network support is enabled (see buildfile for
+ * details).
  */
+/*
 #define XERCES_USE_NETACCESSOR_CURL    1
+*/
 #undef  XERCES_USE_NETACCESSOR_CFURL
 #undef  XERCES_USE_NETACCESSOR_SOCKET
 #undef  XERCES_USE_NETACCESSOR_WINSOCK
