@@ -3,5 +3,4 @@ framework  symlink=dir
 parsers    symlink=dir
 sax        symlink=dir
 sax2       symlink=dir
-validators symlink=dir
 xinclude   symlink=dir

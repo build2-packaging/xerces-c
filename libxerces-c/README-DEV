@@ -6,12 +6,12 @@ Symlink the required upstream files and provide our own implementations for
 auto-generated headers:
 
 $ ln -s ../upstream/LICENSE
-$ ln -s ../../upstream/src/xercesc/{dom,framework,internal,parsers,sax,sax2,\
-validators,xinclude} xercesc/
+$ ln -s ../../upstream/src/xercesc/{dom,framework,internal,parsers,sax,sax2,xinclude} \
+  xercesc/
 
 $ ln -s ../../upstream/src/{stricmp,strnicmp}.{h,c} xercesc/
 
-$ mkdir xercesc/internal/ xercesc/util/
+$ mkdir xercesc/internal/ xercesc/util/ validators/
 
 $ pushd xercesc/internal/
 $ ln -s ../../../upstream/src/xercesc/internal/*.{cpp,hpp} ./
@@ -19,6 +19,11 @@ $ ln -s ../../../upstream/src/xercesc/internal/*.{cpp,hpp} ./
 $ cd ../util/
 $ ln -s ../../../upstream/src/xercesc/util/*.{cpp,hpp,c} ./
 $ ln -s ../../../upstream/src/xercesc/util/{regx,FileManagers} ./
+
+$ cd ../validators/
+$ ln -s ../../../upstream/src/xercesc/validators/{common,datatype,DTD} ./
+$ mkdir schema
+$ ln -s ../../../../upstream/src/xercesc/validators/schema/* ./
 
 Note that the main reasons for such a granular linking (we could just link
 upstream's internal/, util/, etc) are source code patching and reducing the
@@ -74,6 +79,16 @@ We also apply the following patches:
     xercesc/util/
 
   $ git apply xercesc/inline-funcs-def-usage-order.patch
+
+- Patch source files, so that they are properly UTF-8-encoded:
+
+  $ cp --remove-destination ../upstream/src/xercesc/validators/schema/TraverseSchema.cpp \
+    xercesc/validators/schema/
+
+  $ cp --remove-destination ../upstream/src/xercesc/util/XMLFloat.cpp \
+    xercesc/util/
+
+  $ git apply xercesc/utf-8.patch
 
 - Patch of the net accessor test, which by some reason exits with the zero
   status printing the diagnostics to stdout for some errors:

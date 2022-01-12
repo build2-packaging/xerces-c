@@ -1,0 +1,52 @@
+diff --git a/libxerces-c/xercesc/util/XMLFloat.cpp b/libxerces-c/xercesc/util/XMLFloat.cpp
+index ffd7ae0..600d2a7 100644
+--- a/libxerces-c/xercesc/util/XMLFloat.cpp
++++ b/libxerces-c/xercesc/util/XMLFloat.cpp
+@@ -51,7 +51,7 @@ void XMLFloat::checkBoundary(char* const strValue)
+          *  float related checking
+          */
+ 
+-        // 3.2.4 The basic value space of float consists of the values m × 2^e, where 
++        // 3.2.4 The basic value space of float consists of the values m Ã— 2^e, where 
+         //    m is an integer whose absolute value is less than 2^24, 
+         //    and e is an integer between -149 and 104, inclusive
+         static const double fltMin = pow(2.0,-149);
+diff --git a/libxerces-c/xercesc/validators/schema/TraverseSchema.cpp b/libxerces-c/xercesc/validators/schema/TraverseSchema.cpp
+index 48ba8c0..2ade0dc 100644
+--- a/libxerces-c/xercesc/validators/schema/TraverseSchema.cpp
++++ b/libxerces-c/xercesc/validators/schema/TraverseSchema.cpp
+@@ -8051,9 +8051,9 @@ bool TraverseSchema::wildcardAllowsNamespace(const SchemaAttDef* const wildCard,
+     }
+ 
+     // All of the following must be true:
+-    //    2.1 The constraint is a pair of not and a namespace name or ·absent
+-    //    2.2 The value must not be identical to the ·namespace test·.
+-    //    2.3 The value must not be ·absent·.
++    //    2.1 The constraint is a pair of not and a namespace name or absent
++    //    2.2 The value must not be identical to the namespace test.
++    //    2.3 The value must not be absent.
+     if (wildCardType == XMLAttDef::Any_Other &&
+         ((int) nameURI) != fEmptyNamespaceURI &&
+         wildCard->getAttName()->getURI() != nameURI) {
+@@ -8091,7 +8091,7 @@ bool TraverseSchema::isWildCardSubset(const SchemaAttDef* const baseAttWildCard,
+     }
+ 
+     // 2 All of the following must be true:
+-    //     2.1 sub must be a pair of not and a namespace name or ·absent·.
++    //     2.1 sub must be a pair of not and a namespace name or absent.
+     //     2.2 super must be a pair of not and the same value.
+     if (childWildCardType == XMLAttDef::Any_Other && baseWildCardType == XMLAttDef::Any_Other &&
+         childAttWildCard->getAttName()->getURI() == baseAttWildCard->getAttName()->getURI()) {
+@@ -8099,10 +8099,10 @@ bool TraverseSchema::isWildCardSubset(const SchemaAttDef* const baseAttWildCard,
+     }
+ 
+     // 3 All of the following must be true:
+-    //     3.1 sub must be a set whose members are either namespace names or ·absent·.
++    //     3.1 sub must be a set whose members are either namespace names or absent.
+     //     3.2 One of the following must be true:
+     //          3.2.1 super must be the same set or a superset thereof.
+-    //          3.2.2 super must be a pair of not and a namespace name or ·absent· and
++    //          3.2.2 super must be a pair of not and a namespace name or absent and
+     //                 that value must not be in sub's set.
+     if (childWildCardType == XMLAttDef::Any_List) {
+ 
