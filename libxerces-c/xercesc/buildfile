@@ -16,8 +16,7 @@ lib{xerces-c}: {h          }{config}                    \
                {hxx txx cxx}{*/** -util/FileManagers/** \
                                   -util/NetAccessors/** \
                                   -util/XercesVersion}  \
-               {hxx        }{      util/XercesVersion}  \
-               $intf_libs $impl_libs
+               {hxx        }{      util/XercesVersion}
 
 tclass = $cxx.target.class
 tsys   = $cxx.target.system
@@ -30,6 +29,8 @@ util/FileManagers/{hxx cxx}{PosixFileMgr    }: include = (!$windows)
 lib{xerces-c}: util/FileManagers/{hxx cxx}{WindowsFileMgr}: include = $windows
 
 lib{xerces-c}: util/NetAccessors/Curl/{hxx cxx}{*}: include = $network
+
+lib{xerces-c}: $intf_libs $impl_libs
 
 # Include the generated version header into the distribution (so that we
 # don't pick up an installed one) and don't remove it when cleaning in src (so
