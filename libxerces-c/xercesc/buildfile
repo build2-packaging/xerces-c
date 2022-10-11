@@ -117,11 +117,11 @@ switch $tclass, $tsys
     #
     cxx.loptions += -Wl,--no-undefined
 
-    cxx.libs += -lm -lpthread
+    cxx.libs += -lm -pthread
   }
   default
   {
-    cxx.libs += -lpthread
+    cxx.libs += -pthread
   }
 }
 
