@@ -1,7 +1,7 @@
 # file      : buildfile
 # license   : Apache License 2.0; see accompanying LICENSE file
 
-./: {*/ -build/} doc{LICENSE INSTALL README} manifest
+./: {*/ -build/} doc{INSTALL README} legal{LICENSE} manifest
 
 # Don't install tests or the INSTALL file.
 #

@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.2.3+4
+version: 3.2.4-a.0.z
 
 project: xerces-c
 summary: Validating XML parsing and serialization C++ library
@@ -17,12 +17,8 @@ package-url: https://git.build2.org/cgit/packaging/xerces-c/
 email: c-users@xerces.apache.org    ; Mailing list.
 package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
-depends: * build2 >= 0.12.0
-depends: * bpkg >= 0.12.0
-
-# @@ Disable until conditional dependencies are supported.
-#
-#depends: libcurl ^7.67.0
-
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+depends: libcurl ^7.67.0 ? ($config.libxerces_c.network)
 depends: libicuuc >= 65.1.0
 depends: libicui18n >= 65.1.0
