@@ -6,7 +6,7 @@ Symlink the required upstream files and provide our own implementations for
 auto-generated headers:
 
 $ ln -s ../upstream/LICENSE
-$ ln -s ../../upstream/src/xercesc/{dom,framework,internal,parsers,sax,sax2,xinclude} \
+$ ln -s ../../upstream/src/xercesc/{dom,framework,parsers,sax,sax2,xinclude} \
   xercesc/
 
 $ ln -s ../../upstream/src/{stricmp,strnicmp}.{h,c} xercesc/

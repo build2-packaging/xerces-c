@@ -6,7 +6,7 @@
 #
 # If enabled, then the libcurl library is used to access network resources.
 #
-config [bool] config.libxerces_c.network ?= false
+config [bool] config.libxerces_c.network ?= true # @@ TMP
 
 # We rely on C99 in macro deductions (see xercesc/config.h and
 # xercesc/util/Xerces_autoconf_config.hpp for details).

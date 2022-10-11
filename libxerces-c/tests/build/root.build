@@ -3,7 +3,7 @@
 
 # Test network support (see parent project for details).
 #
-config [bool] config.libxerces_c.network ?= false
+config [bool] config.libxerces_c.network ?= true # @@ TMP
 
 cxx.std = latest
 
