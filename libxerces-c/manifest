@@ -3,8 +3,9 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.2.4
+version: 3.2.4+1
 
+language: c++
 project: xerces-c
 summary: Validating XML parsing and serialization C++ library
 license: Apache-2.0 ; Apache License 2.0.
@@ -20,5 +21,12 @@ build-error-email: builds@build2.org
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: libcurl ^7.67.0 ? ($config.libxerces_c.network)
-depends: libicuuc >= 65.1.0
-depends: libicui18n >= 65.1.0
+depends: {libicuuc libicui18n} >= 65.1.0 ? ($config.libxerces_c.transcoder_icu)
+
+transcoder-icu-builds: macos windows
+transcoder-icu-build-config:
+\
+config.libxerces_c.transcoder_icu=true
+;
+Test with ICU transcoder on Mac OS and Windows.
+\

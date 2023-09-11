@@ -1,13 +1,6 @@
 # file      : build/root.build
 # license   : Apache License 2.0; see accompanying LICENSE file
 
-# Enable network support so that the parser can download remote resources
-# (schemas, DTDs, etc).
-#
-# If enabled, then the libcurl library is used to access network resources.
-#
-config [bool] config.libxerces_c.network ?= false
-
 # We rely on C99 in macro deductions (see xercesc/config.h and
 # xercesc/util/Xerces_autoconf_config.hpp for details).
 #
@@ -31,3 +24,22 @@ if ($c.target.system == 'win32-msvc')
 
 if ($c.class == 'msvc')
   cc.coptions += /wd4251 /wd4275 /wd4800
+
+# Enable network support so that the parser can download remote resources
+# (schemas, DTDs, etc).
+#
+# If enabled, then the libcurl library is used to access network resources.
+#
+config [bool] config.libxerces_c.network ?= false
+
+# We use ICU everywhere except on Mac OS and Windows where we by default
+# use native transcoders (but can still be forced to use ICU instead).
+#
+config [bool] config.libxerces_c.transcoder_icu ?= \
+  ($cxx.target.class != 'macos' && $cxx.target.class != 'windows')
+
+if! $config.libxerces_c.transcoder_icu
+{
+  assert ($cxx.target.class == 'macos' || $cxx.target.class == 'windows') \
+    "only ICU transcoder is supported on $cxx.target.class"
+}

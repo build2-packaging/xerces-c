@@ -23,19 +23,25 @@
 #  include <stdint.h> /* Requires C99. */
 #endif
 
-/* Use the ICU transcoder.
+/* Transcoder.
+ *
+ * Note that depending on config.libxerces_c.transcoder_icu and
+ * cxx.target.class values one of the following macros is defined via the
+ * preprocessor option (see buildfile and root.build for details).
  */
+/*
 #define XERCES_USE_TRANSCODER_ICU                   1
-#undef  XERCES_USE_TRANSCODER_GNUICONV
-#undef  XERCES_USE_TRANSCODER_ICONV
 #undef  XERCES_USE_TRANSCODER_MACOSUNICODECONVERTER
 #undef  XERCES_USE_TRANSCODER_WINDOWS
+*/
+#undef  XERCES_USE_TRANSCODER_GNUICONV
+#undef  XERCES_USE_TRANSCODER_ICONV
 
-/* Use the Curl net accessor.
+/* Net accessor.
  *
  * Note that the XERCES_USE_NETACCESSOR_CURL macro is defined via the
- * preprocessor option if the network support is enabled (see buildfile for
- * details).
+ * preprocessor option if the network support is enabled (see buildfile and
+ * root.build for details).
  */
 /*
 #define XERCES_USE_NETACCESSOR_CURL    1
@@ -91,6 +97,10 @@
 #  define HAVE_FTIME                      1
 #  define HAVE_STRICMP                    1
 #  define HAVE_STRNICMP                   1
+#  define HAVE_WCSICMP                    1
+#  define HAVE_WCSLWR                     1
+#  define HAVE_WCSNICMP                   1
+#  define HAVE_WCSUPR                     1
 #  define XERCES_HAVE_INTRIN_H            1
 #  define XERCES_PATH_DELIMITER_BACKSLASH 1
 #  define XERCES_HAVE_CPUID_INTRINSIC     1

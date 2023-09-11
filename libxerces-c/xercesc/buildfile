@@ -2,25 +2,34 @@
 # license   : Apache License 2.0; see accompanying LICENSE file
 
 network = $config.libxerces_c.network
+transcoder_icu = $config.libxerces_c.transcoder_icu
+
+intf_libs = # Interface dependencies.
+impl_libs = # Implementation dependencies.
 
 # Note that the installed util/NetAccessors/Curl/CurlURLInputStream.hpp
 # includes the libcurl headers.
 #
 if $network
-  import intf_libs = libcurl%lib{curl}
+  import intf_libs += libcurl%lib{curl}
 
-import impl_libs  = libicuuc%lib{icuuc}
-import impl_libs += libicui18n%lib{icui18n}
+if $transcoder_icu
+{
+  import impl_libs += libicuuc%lib{icuuc}
+  import impl_libs += libicui18n%lib{icui18n}
+}
 
 lib{xerces-c}: {h          }{config}                    \
                {hxx txx cxx}{*/** -util/FileManagers/** \
                                   -util/NetAccessors/** \
+                                  -util/Transcoders/**  \
                                   -util/XercesVersion}  \
                {hxx        }{      util/XercesVersion}
 
 tclass = $cxx.target.class
 tsys   = $cxx.target.system
 
+macos   = ($tclass == 'macos')
 windows = ($tclass == 'windows')
 
 lib{xerces-c}:    {h     c}{stricmp strnicmp}                        \
@@ -29,6 +38,14 @@ util/FileManagers/{hxx cxx}{PosixFileMgr    }: include = (!$windows)
 lib{xerces-c}: util/FileManagers/{hxx cxx}{WindowsFileMgr}: include = $windows
 
 lib{xerces-c}: util/NetAccessors/Curl/{hxx cxx}{*}: include = $network
+
+lib{xerces-c}: util/Transcoders/ICU/{hxx cxx}{*}: include = $transcoder_icu
+
+lib{xerces-c}: util/Transcoders/MacOSUnicodeConverter/{hxx cxx}{*}: \
+include = (!$transcoder_icu && $macos)
+
+lib{xerces-c}: util/Transcoders/Win32/{hxx cxx}{*}: \
+include = (!$transcoder_icu && $windows)
 
 lib{xerces-c}: $intf_libs $impl_libs
 
@@ -54,6 +71,13 @@ util/hxx{XercesVersion}: util/in{XercesVersion} $src_root/manifest
 #
 if $network
   cc.poptions += -DXERCES_USE_NETACCESSOR_CURL=1
+
+if $transcoder_icu
+  cc.poptions += -DXERCES_USE_TRANSCODER_ICU=1
+elif $macos
+  cc.poptions += -DXERCES_USE_TRANSCODER_MACOSUNICODECONVERTER=1
+elif $windows
+  cc.poptions += -DXERCES_USE_TRANSCODER_WINDOWS=1
 
 cc.poptions += -DXERCES_BUILDING_LIBRARY -DHAVE_CONFIG_H -D_THREAD_SAFE
 
@@ -110,6 +134,9 @@ switch $tclass, $tsys
     #
     cxx.aoptions += /IGNORE:4221
 
+    if! $transcoder_icu
+      cxx.libs += advapi32.lib
+
     cxx.libs += ws2_32.lib
   }
   case 'linux'
@@ -119,6 +146,13 @@ switch $tclass, $tsys
     cxx.loptions += -Wl,--no-undefined
 
     cxx.libs += -lm -pthread
+  }
+  case 'macos'
+  {
+    if! $transcoder_icu
+      cxx.libs += -framework CoreServices
+
+    cxx.libs += -pthread
   }
   default
   {

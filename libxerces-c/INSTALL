@@ -10,3 +10,9 @@ Note that by default libxerces-c is built without network support. To enable
 it, run the following command instead:
 
 $ bpkg build libxerces-c +{ config.libxerces_c.network=true }
+
+Also note that by default libxerces-c is built with a native transcoder on Mac
+OS and Windows. To enable the ICU transcoder, run the following command
+instead:
+
+$ bpkg build libxerces-c +{ config.libxerces_c.transcoder_icu=true }

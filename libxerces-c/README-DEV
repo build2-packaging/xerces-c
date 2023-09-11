@@ -32,7 +32,7 @@ change tracking instructions below for details). As a bonus it also simplifies
 the buildfile.
 
 $ mkdir -p Transcoders NetAccessors MsgLoaders MutexManagers
-$ ln -s ../../../../upstream/src/xercesc/util/Transcoders/ICU Transcoders/
+$ ln -s ../../../../upstream/src/xercesc/util/Transcoders/{ICU,MacOSUnicodeConverter,Win32} Transcoders/
 $ ln -s ../../../../upstream/src/xercesc/util/NetAccessors/Curl NetAccessors/
 $ ln -s ../../../../upstream/src/xercesc/util/MsgLoaders/InMemory MsgLoaders/
 $ ln -s ../../../../upstream/src/xercesc/util/MutexManagers/StdMutexMgr.{hpp,cpp} MutexManagers/
