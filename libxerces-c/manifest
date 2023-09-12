@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.2.4+1
+version: 3.2.4+2
 
 language: c++
 project: xerces-c
@@ -29,4 +29,85 @@ transcoder-icu-build-config:
 config.libxerces_c.transcoder_icu=true
 ;
 Test with ICU transcoder on Mac OS and Windows.
+\
+
+# Binary distribution packages. Overall notes:
+#
+# - Build as C++11 for maximum compatibility (this is a C++98 codebase).
+
+# On RHEL the Xerces-C++ package is only available from EPEL and usually of
+# an outdated version. So we build one ourselves.
+#
+bindist-rhel-builds: bindist
+bindist-rhel-build-include: linux_rhel*-**
+bindist-rhel-build-exclude: **
+bindist-rhel-build-config:
+\
++bpkg.bindist.fedora:
++bbot.bindist.upload:
+b.create:config.cxx.std=c++11
+?sys:libicuuc
+?sys:libicui18n
+\
+
+# On Ubuntu the Xerces-C++ package is only available from the `universe`
+# section (unsupported community packages, but enabled by default unlike
+# EPEL) and usually of an outdated version. So we build one ourselves.
+#
+bindist-ubuntu-builds: bindist
+bindist-ubuntu-build-include: linux_ubuntu*-**
+bindist-ubuntu-build-exclude: **
+bindist-ubuntu-build-config:
+\
++bpkg.bindist.debian:
++bbot.bindist.upload:
+b.create:config.cxx.std=c++11
+?sys:libicuuc
+?sys:libicui18n
+\
+
+# Windows binary distribution archives (debug and release).
+#
+# - For Debug we only produce the shared library (if we wanted to also do
+#   static, then would need to use /Z7).
+#
+bindist-windows-release-builds: bindist
+bindist-windows-release-build-include: windows*-**
+bindist-windows-release-build-exclude: **
+bindist-windows-release-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+bpkg.bindist.archive:config.install.relocatable=true
+b.create:config.cc.coptions="/W2 /O2"
+b.create:config.cxx.std=c++11
+\
+
+bindist-windows-debug-builds: bindist
+bindist-windows-debug-build-include: windows*-**
+bindist-windows-debug-build-exclude: **
+bindist-windows-debug-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+bpkg.bindist.archive:config.install.relocatable=true
+bpkg.bindist.archive:--archive-build-meta=+debug
+bpkg.create:config.bin.lib=shared
+b.create:config.cc.coptions="/W2 /Zi /MDd"
+b.create:config.cc.loptions="/DEBUG:FULL"
+b.create:config.cxx.std=c++11
+\
+
+# Mac OS binary distribution archives.
+#
+bindist-macos-builds: bindist
+bindist-macos-build-include: macos*-**
+bindist-macos-build-exclude: **
+bindist-macos-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+bpkg.bindist.archive:config.install.relocatable=true
+b.create:config.cc.coptions="-Wall -O3"
+b.create:config.cxx.std=c++11
 \
