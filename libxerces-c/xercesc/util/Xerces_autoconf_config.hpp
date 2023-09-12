@@ -135,10 +135,15 @@
  * type. Note that falling back to defining the XERCES_PLATFORM_IMPORT macro
  * as empty would work for both the static and shared libraries (being
  * sub-optimal for the later) but only for functions. Xerces-C++, however,
- * also exports data symbols, which cannot be imported this way. Thus we,
- * just issue an error.
+ * also exports data symbols, which cannot be imported this way. Thus,
+ * where matters (Windows), we just issue an error.
  */
-#  error define LIBXERCES_C_STATIC or LIBXERCES_C_SHARED preprocessor macro to signal Xerces-C++ library type being linked
+#  ifdef _WIN32
+#    error define LIBXERCES_C_STATIC or LIBXERCES_C_SHARED preprocessor macro to signal Xerces-C++ library type being linked
+#  else
+#    define XERCES_PLATFORM_IMPORT
+#    define XERCES_PLATFORM_DECEXPORT
+#  endif
 #endif
 
 #ifdef XERCES_DLL_EXPORT
