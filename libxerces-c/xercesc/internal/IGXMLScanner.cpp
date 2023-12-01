@@ -1535,6 +1535,7 @@ void IGXMLScanner::scanDocTypeDecl()
             DTDEntityDecl* declDTD = new (fMemoryManager) DTDEntityDecl(gDTDStr, false, fMemoryManager);
             declDTD->setSystemId(sysId);
             declDTD->setIsExternal(true);
+            Janitor<DTDEntityDecl> janDecl(declDTD);
 
             // Mark this one as a throw at end
             reader->setThrowAtEnd(true);
@@ -3097,6 +3098,7 @@ Grammar* IGXMLScanner::loadDTDGrammar(const InputSource& src,
     DTDEntityDecl* declDTD = new (fMemoryManager) DTDEntityDecl(gDTDStr, false, fMemoryManager);
     declDTD->setSystemId(src.getSystemId());
     declDTD->setIsExternal(true);
+    Janitor<DTDEntityDecl> janDecl(declDTD);
 
     // Mark this one as a throw at end
     newReader->setThrowAtEnd(true);
