@@ -1,0 +1,8 @@
+# file      : tests/reader-mgr/buildfile
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+import libs = libxerces-c%lib{xerces-c}
+
+./: exe{driver} file{*.dtd *.ent}
+
+exe{driver}: {hxx cxx}{*} $libs testscript

@@ -1,0 +1,8 @@
+# file      : tests/reader-mgr/testscript
+# license   : Apache License 2.0; see accompanying LICENSE file
+
+: basics
+:
+$* "personal=$src_base/personal.dtd" \
+   "links=$src_base/links.ent" \
+   "characters=$src_base/characters.ent"
