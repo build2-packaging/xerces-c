@@ -84,6 +84,32 @@ We also apply the following patches:
 
    $ git apply tests/net-accessor/handle-exception-as-error.patch
 
+5) Fix of the use-after-free error (CVE-2018-1311) triggered during the
+   scanning of external DTDs (see https://security-tracker.debian.org/tracker/CVE-2018-1311
+   for details).
+
+   At time of this writing there is no upstream fix and only suggested
+   mitigations (see https://issues.apache.org/jira/browse/XERCESC-2188 for
+   details). There is a fix implemented by Debian which mitigates the issue at
+   the expense of a memory leak (see
+   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=947431 for details).
+
+   Here is a proper patch (note: API and ABI backward compatible):
+
+   $ cp --remove-destination ../upstream/src/xercesc/internal/IGXMLScanner.cpp \
+     xercesc/internal/
+
+   $ cp --remove-destination ../upstream/src/xercesc/internal/DGXMLScanner.cpp \
+     xercesc/internal/
+
+   $ cp --remove-destination ../upstream/src/xercesc/internal/ReaderMgr.hpp \
+     xercesc/internal/
+
+   $ cp --remove-destination ../upstream/src/xercesc/internal/ReaderMgr.cpp \
+     xercesc/internal/
+
+   $ git apply xercesc/dtd-decl-use-after-free.patch
+
 Note that the above patches are produced by the following commands:
 
 $ git diff ><patch-path>
