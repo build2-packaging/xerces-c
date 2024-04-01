@@ -1,1 +1,0 @@
-../../../../upstream/src/xercesc/validators/schema/SchemaSymbols.hpp

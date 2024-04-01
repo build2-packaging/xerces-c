@@ -3,10 +3,11 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.2.4+2
+version: 3.2.5-a.0.z
 
 language: c++
 project: xerces-c
+priority: security
 summary: Validating XML parsing and serialization C++ library
 license: Apache-2.0 ; Apache License 2.0.
 topics: Xerces, C++, XML parser, DOM, SAX

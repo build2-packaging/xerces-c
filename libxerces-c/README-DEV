@@ -6,30 +6,22 @@ Symlink the required upstream files and provide our own implementations for
 auto-generated headers:
 
 $ ln -s ../upstream/LICENSE
-$ ln -s ../../upstream/src/xercesc/{dom,framework,parsers,sax,sax2,xinclude} \
+$ ln -s ../../upstream/src/xercesc/{dom,framework,parsers,sax,sax2,validators,xinclude} \
   xercesc/
 
 $ ln -s ../../upstream/src/{stricmp,strnicmp}.{h,c} xercesc/
 
-$ mkdir xercesc/internal/ xercesc/util/ validators/
+$ mkdir xercesc/util/
 
-$ pushd xercesc/internal/
-$ ln -s ../../../upstream/src/xercesc/internal/*.{cpp,hpp} ./
-
-$ cd ../util/
+$ pushd xercesc/util/
 $ ln -s ../../../upstream/src/xercesc/util/*.{cpp,hpp,c} ./
 $ ln -s ../../../upstream/src/xercesc/util/{regx,FileManagers} ./
 
-$ cd ../validators/
-$ ln -s ../../../upstream/src/xercesc/validators/{common,datatype,DTD} ./
-$ mkdir schema
-$ ln -s ../../../../upstream/src/xercesc/validators/schema/* ./
-
 Note that the main reasons for such a granular linking (we could just link
-upstream's internal/, util/, etc) are source code patching and reducing the
-number of preprocessor macros we need to deduce in xercesc/config.h (see the
-change tracking instructions below for details). As a bonus it also simplifies
-the buildfile.
+upstream's util/, etc) are source code patching and reducing the number of
+preprocessor macros we need to deduce in xercesc/config.h (see the change
+tracking instructions below for details). As a bonus it also simplifies the
+buildfile.
 
 $ mkdir -p Transcoders NetAccessors MsgLoaders MutexManagers
 $ ln -s ../../../../upstream/src/xercesc/util/Transcoders/{ICU,MacOSUnicodeConverter,Win32} Transcoders/
@@ -47,56 +39,17 @@ $ ln -s ../../../upstream/samples/src/DOMPrint tests/dom-print/
 $ ln -s ../../../upstream/samples/src/SAXPrint tests/sax-print/
 $ ln -s ../../../upstream/samples/src/SAX2Print tests/sax2-print/
 $ ln -s ../../../upstream/samples/src/PSVIWriter tests/psvi-writer/
+$ ln -s ../../../upstream/tests/src/NetAccessorTest/NetAccessorTest.cpp tests/net-accessor
 
 We also apply the following patches:
 
-1) Fix of the use-after-free error (CVE-2018-1311) triggered during the
-   scanning of external DTDs (see https://security-tracker.debian.org/tracker/CVE-2018-1311
-   for details).
-
-   There is no upstream fix and only suggested mitigations, at time of this
-   writing (see https://issues.apache.org/jira/browse/XERCESC-2188 for
-   details). Thus, we mitigate the issue at the expense of a memory leak, as
-   it is done by Debian (https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=947431).
-
-   $ cp --remove-destination ../upstream/src/xercesc/internal/IGXMLScanner.cpp \
-     xercesc/internal/
-
-   $ git apply xercesc/dtd-decl-use-after-free.patch
-
-2) The explicit template instantiation declarations and definitions patch (see
+1) The explicit template instantiation declarations and definitions patch (see
    xercesc/util/Xerces_autoconf_config.hpp for details):
 
    $ cp --remove-destination ../upstream/src/xercesc/util/{Janitor.hpp,JanitorExports.cpp} \
      xercesc/util/
 
    $ git apply xercesc/export-template-instantiations.patch
-
-3) The inline functions definition/usage order change to prevent MinGW GCC
-   from complaining when compile code that uses libxerces-c:
-
-   $ cp --remove-destination ../upstream/src/xercesc/util/KVStringPair.hpp \
-     xercesc/util/
-
-   $ git apply xercesc/inline-funcs-def-usage-order.patch
-
-4) Patch source files, so that they are properly UTF-8-encoded:
-
-   $ cp --remove-destination ../upstream/src/xercesc/validators/schema/TraverseSchema.cpp \
-     xercesc/validators/schema/
-
-   $ cp --remove-destination ../upstream/src/xercesc/util/XMLFloat.cpp \
-     xercesc/util/
-
-   $ git apply xercesc/utf-8.patch
-
-5) Patch of the net accessor test, which by some reason exits with the zero
-   status printing the diagnostics to stdout for some errors:
-
-   $ cp ../upstream/tests/src/NetAccessorTest/NetAccessorTest.cpp \
-     tests/net-accessor/
-
-   $ git apply tests/net-accessor/handle-exception-as-error.patch
 
 Note that the above patches are produced by the following commands:
 
