@@ -25,7 +25,7 @@ using install
 #
 # See also: https://xerces.apache.org/xerces-c/faq-contributing-3.html
 #
-if ($version.major == 3 && $version.minor == 2)
+if ($version.major == 3 && $version.minor == 3)
 {
   grammar_serialization_level = 7 # Serialization format version.
 
