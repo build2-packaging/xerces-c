@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.3.0-a.0.z
+version: 3.3.0
 
 language: c++
 project: xerces-c
