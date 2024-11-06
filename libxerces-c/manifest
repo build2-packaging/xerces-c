@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.3.0
+version: 3.3.0+1
 
 language: c++
 project: xerces-c
@@ -72,7 +72,7 @@ b.create:config.cxx.std=c++11
 #   static, then would need to use /Z7).
 #
 bindist-windows-release-builds: bindist
-bindist-windows-release-build-include: windows*-**
+bindist-windows-release-build-include: windows*-msvc**
 bindist-windows-release-build-exclude: **
 bindist-windows-release-build-config:
 \
@@ -84,7 +84,7 @@ b.create:config.cxx.std=c++11
 \
 
 bindist-windows-debug-builds: bindist
-bindist-windows-debug-build-include: windows*-**
+bindist-windows-debug-build-include: windows*-msvc**
 bindist-windows-debug-build-exclude: **
 bindist-windows-debug-build-config:
 \
