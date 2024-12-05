@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.3.0+1
+version: 3.3.0+2
 
 language: c++
 project: xerces-c
@@ -69,7 +69,8 @@ b.create:config.cxx.std=c++11
 # Windows binary distribution archives (debug and release).
 #
 # - For Debug we only produce the shared library (if we wanted to also do
-#   static, then would need to use /Z7).
+#   static, then would need to use /Z7), adding the `D` suffix to the library
+#   name.
 #
 bindist-windows-release-builds: bindist
 bindist-windows-release-build-include: windows*-msvc**
@@ -93,8 +94,11 @@ bindist-windows-debug-build-config:
 bpkg.bindist.archive:config.install.relocatable=true
 bpkg.bindist.archive:--archive-build-meta=+debug
 bpkg.create:config.bin.lib=shared
+bpkg.create:config.bin.lib.suffix=D
 b.create:config.cc.coptions="/W2 /Zi /MDd"
 b.create:config.cc.loptions="/DEBUG:FULL"
+b.test-installed.create:config.cc.coptions="/W2 /MDd"
+b.test-installed.create:config.import.libxerces_c.xerces_c.lib=xerces-cD
 b.create:config.cxx.std=c++11
 \
 
