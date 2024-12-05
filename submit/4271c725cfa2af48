@@ -1,0 +1,7 @@
+: 1
+name: libxerces-c
+version: 3.3.0+2
+language: c++
+project: xerces-c
+summary: Validating XML parsing and serialization C++ library
+license: Apache-2.0; Apache License 2.0.
