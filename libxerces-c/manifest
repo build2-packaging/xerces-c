@@ -3,7 +3,7 @@ name: libxerces-c
 
 # Note: remember to update doc-url below!
 #
-version: 3.3.0+2
+version: 3.3.0+3
 
 language: c++
 project: xerces-c
@@ -21,7 +21,7 @@ build-error-email: builds@build2.org
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: libcurl ^7.67.0 ? ($config.libxerces_c.network)
-depends: {libicuuc libicui18n} >= 65.1.0 ? ($config.libxerces_c.transcoder_icu)
+depends: {libicuuc libicui18n} >= 60.3.0 ? ($config.libxerces_c.transcoder_icu)
 
 transcoder-icu-builds: macos windows
 transcoder-icu-build-config:
